@@ -21,38 +21,39 @@ const init = async () => {
       DROP TABLE IF EXISTS customers;
       DROP TABLE IF EXISTS restaurants;
 
+      CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
       CREATE TABLE IF NOT EXISTS customers (
-        id UUID PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         name VARCHAR(255) NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS restaurants (
-        id UUID PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         name VARCHAR(255) NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS reservations (
-        id UUID PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         date DATE NOT NULL,
         party_count INTEGER NOT NULL,
         restaurant_id UUID REFERENCES restaurants(id) NOT NULL,
         customer_id UUID REFERENCES customers(id) NOT NULL
       );
 
-INSERT INTO customers (id, name) VALUES
-(uuid_generate_v4(), 'Alice Johnson'),
-(uuid_generate_v4(), 'Bob Smith'),
-(uuid_generate_v4(), 'Carol Martinez'),
-(uuid_generate_v4(), 'David Lee'),
-(uuid_generate_v4(), 'Emily Zhang');
+      INSERT INTO customers (name) VALUES
+      ('Alice Johnson'),
+      ('Bob Smith'),
+      ('Carol Martinez'),
+      ('David Lee'),
+      ('Emily Zhang');
 
-INSERT INTO restaurants (id, name) VALUES
-(uuid_generate_v4(), 'Starry Night Cafe'),
-(uuid_generate_v4(), 'The Hungry Bear'),
-(uuid_generate_v4(), 'Ocean Breeze Bistro'),
-(uuid_generate_v4(), 'Mountain Peak Grill'),
-(uuid_generate_v4(), 'Golden Dragon Eatery');
-
+      INSERT INTO restaurants (name) VALUES
+      ('Starry Night Cafe'),
+      ('The Hungry Bear'),
+      ('Ocean Breeze Bistro'),
+      ('Mountain Peak Grill'),
+      ('Golden Dragon Eatery');
     `;
 
     await client.query(SQL);
@@ -84,8 +85,8 @@ const createReservation = async (
   partyCount
 ) => {
   const result = await client.query(
-    "INSERT INTO reservations (id, customer_id, restaurant_id, date, party_count) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-    [uuidv4(), customerId, restaurantId, date, partyCount]
+    "INSERT INTO reservations (customer_id, restaurant_id, date, party_count) VALUES ($1, $2, $3, $4) RETURNING *",
+    [customerId, restaurantId, date, partyCount]
   );
   return result.rows[0];
 };
@@ -95,7 +96,6 @@ const destroyReservation = async (reservationId) => {
 };
 
 module.exports = {
-  client,
   connect,
   init,
   fetchCustomers,

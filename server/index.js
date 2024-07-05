@@ -58,7 +58,7 @@ app.post("/api/customers/:id/reservations", async (req, res, next) => {
 app.delete(
   "/api/customers/:customer_id/reservations/:id",
   async (req, res, next) => {
-    const { customer_id, id } = req.params;
+    const { id } = req.params;
     try {
       await destroyReservation(id);
       res.sendStatus(204);
@@ -81,7 +81,7 @@ const startServer = async () => {
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}`);
+      console.log(`Server is running on http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error("Error starting server:", error);
@@ -89,5 +89,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-module.exports = app;
